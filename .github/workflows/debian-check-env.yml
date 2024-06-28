@@ -18,29 +18,26 @@ jobs:
           sparse-checkout-cone-mode: false
           path: debianCheck
       - id: check-env-keys
-        run: 
+        run: |
           check_result=$(python3 debianCheck/debianCheck/do-with-data.py ${check_type} ${check_keys} fetch-api-data-action/data.json)
-          echo "check_result=$check_result" >> $GITHUB_OUTPUT
+          echo "CHECK_RESULT=$check_result" >> $GITHUB_ENV
         env:
           check_type: all
           check_keys: export,unset
       - name: Publish reports
         id: artifact-upload-step
-        if: steps.check-env-keys.outputs.check_result != '{}'
+        if: env.CHECK_RESULT == 'False'
         uses: actions/upload-artifact@v4
         with:
           name: env-set-words-check-report
           path: result.json
       - name: Comment PR
-        if: steps.check-env-keys.outputs.check_result != '{}'
+        if: env.CHECK_RESULT == 'False'
         uses: thollander/actions-comment-pull-request@v2
         with:
           message: |
-            检测到export/unset敏感词变动:https://github.com/${{github.repository}}/actions/runs/${{ github.run_id }}/artifacts/${{steps.artifact-upload-step.outputs.artifact-id}}
-      - run: |
-          if [[ "$check_result" != "{}" ]];then
-            echo "环境设置敏感词export/unset检查不通过"
-            exit 1
-          fi
-        env:
-          check_result: ${{ steps.check-env-keys.outputs.check_result }}
+            检测到环境设置敏感词export/unset变动:https://github.com/${{github.repository}}/actions/runs/${{ github.run_id }}/artifacts/${{steps.artifact-upload-step.outputs.artifact-id}}
+      - if: env.CHECK_RESULT == 'False'
+        run: |
+          echo "环境设置敏感词export/unset检查不通过"
+          exit 1

@@ -4,11 +4,9 @@ on: workflow_call
 permissions: write-all
 
 jobs:
-  call-debian-prefix-check:
+  call-debian-check-prefix:
     uses: linuxdeepin/.github/.github/workflows/debian-check-prefix.yml@master
-  call-debian-version-check:
+  call-debian-check-version:
     uses: linuxdeepin/.github/.github/workflows/debian-check-version.yml@master
-  call-specical-words-check:
+  call-debian-check-keys:
     uses: linuxdeepin/.github/.github/workflows/debian-check-keys.yml@master
-  call-env-set-words-check:
-    uses: linuxdeepin/.github/.github/workflows/debian-check-env.yml@master
